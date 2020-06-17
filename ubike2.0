@@ -1,0 +1,73 @@
+import matplotlib.pyplot as plt
+def minimum_cost(T, D, V, S, max_demand, lbound, hbound):
+    for t in range(1, T + 1):
+        for y in range(lbound, hbound+1):
+            min_qty = max(D[T - t] - y, 0) # min_x
+            max_qty = max(sum(D[T-t:]) - y, 0) # max_x
+            max_qty = min(D[T-t]-y, max_qty)
+            #print("t=%d, y=%d, min_qty=%d, max_qty=%d" %(t,y,min_qty, max_qty))
+            if t == 1:
+                min_cost = 9999999
+                opt_x = -1
+                for x in range(min_qty, max_demand + 1):
+                    z = 1 if x > 0 else 0
+                    cost = C[T - t] * x + H * (y + x - D[T - t]) + S*z
+                    if cost < min_cost: 
+                        min_cost = cost
+                        opt_x = x
+            else: 
+                min_cost = 9999999
+                opt_x = -1
+                for x in range(min_qty, max_qty + 1):
+                    z = 1 if x > 0 else 0
+                    cost = V[t - 1][y + x - D[T - t]] + C[T - t] * x + H * (y + x - D[T - t]) 
+                    if cost < min_cost: 
+                        min_cost = cost
+                        opt_x = x
+    
+            V[t][y] = min_cost
+
+def print_min_cost(V):
+    for t in range(len(V)):
+        for y in range(len(V[0])):
+            print("{:>3}".format(V[t][y]), end="")
+            #print(V[t][y], end = " ")
+        print()
+    print()
+
+period = 6
+D = [2, 1, 2, 3, 3, 2]
+C = [4,6,4,7,6,3]
+H = 1
+K = 50
+S = 5
+y_init = 0
+V = [0] * (period + 1)
+for i in range(len(V)):
+    V[i] = [0] * (sum(D) + 1)
+
+# hw3 Q4(a)
+minimum_cost(period, D, C, H, V, S, K, max(D), sum(D))
+print(" V_t(y), t*y, t=0~6, y=0~13\n")
+print_min_cost(V)
+
+# hw3 Q4(b)
+Srange = [0,5,10,15]
+costs = [] #minimumcost when t = 6,y = 0
+for s in Srange:
+    V = [0] * (period + 1)
+    for i in range(len(V)):
+        V[i] = [0] * (sum(D) + 1)
+    minimum_cost(period, D, C, H, V, s, K, max(D), sum(D))
+    costs.append(V[6][0])
+plt.plot(Srange,costs, marker='o', color='blue')
+plt.xlabel("Setup cost(S)")
+plt.ylabel("V(t=6, y=0)")
+plt.show()
+
+    
+    
+
+
+
+
